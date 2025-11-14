@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>自定义响应式加密页面</title>
+
+  <!-- 引入 Chart.js（用于图表，可删除或换成你喜欢的图表库） -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --max-w:1100px;
+      --accent:#cf8a00;
+      --muted:#666;
+      --bg:#f5f6f8;
+      --card:#fff;
+      --shadow: 0 6px 20px rgba(0,0,0,0.06);
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI","PingFang SC","Helvetica Neue","Microsoft Yahei",Arial;
+      background:var(--bg);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{max-width:var(--max-w);margin:28px auto;padding:16px; display:none;} /* 初始隐藏，密码验证后显示 */
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:18px;}
+
+    /* ---------- 顶部 ---------- */
+    header.site-header{display:flex;align-items:center;gap:16px;padding:10px 14px;}
+    .logo{
+      width:64px;height:64px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#ffbf66);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+    }
+    .title-group h1{margin:0;font-size:20px;}
+    .title-group p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+
+    /* ---------- 概览数据看板 ---------- */
+    .dashboard{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+    .kpi{flex:1 1 150px;min-width:150px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfbfb);box-shadow:inset 0 -1px 0 rgba(0,0,0,0.02)}
+    .kpi h3{margin:0;font-size:18px;color:var(--accent)}
+    .kpi p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* ---------- 主体两栏（图表 + 文章/表格） ---------- */
+    .main-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-top:14px;}
+    .chart-card{padding:10px;}
+    .meta p{margin:6px 0;color:var(--muted);font-size:13px}
+
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+    th{background:#fafafa;font-weight:600}
+
+    /* ---------- 响应式 ---------- */
+    @media (max-width:900px){
+      .main-grid{grid-template-columns:1fr;}
+      .title-group h1{font-size:18px}
+      .logo{width:56px;height:56px;font-size:16px}
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="wrap" id="content-wrap">
+
+  <!-- ====== 顶部 标题区 ====== -->
+  <header class="site-header card" role="banner">
+    <div class="logo">自定</div>
+    <div class="title-group">
+      <h1>自定义页面标题（点击替换）</h1>
+      <p>副标题 / 简短说明：在这里写一句话概述页面内容。</p>
+    </div>
+  </header>
+
+  <!-- ====== 概览数据看板 ====== -->
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+      <div>
+        <h2 style="margin:0 0 6px 0">今日要点摘要</h2>
+        <p class="meta">在这里写一小段摘要：例如市场要闻、数据提示或页面主题说明。</p>
+      </div>
+      <div style="color:var(--muted);font-size:13px">更新时间：<span id="updateTime">2025-11-14 08:00</span></div>
+    </div>
+
+    <div class="dashboard" style="margin-top:12px;">
+      <div class="kpi">
+        <h3 id="kpi1">¥ 5,432</h3>
+        <p>示例指标 A（可编辑）</p>
+      </div>
+      <div class="kpi">
+        <h3 id="kpi2">+1.23%</h3>
+        <p>示例指标 B（可编辑）</p>
+      </div>
+      <div class="kpi">
+        <h3 id="kpi3">120</h3>
+        <p>示例指标 C（可编辑）</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 主体：图表与边栏 ====== -->
+  <div class="main-grid">
+
+    <!-- 主栏：图表 + 说明文章 -->
+    <div class="card chart-card">
+      <h3 style="margin-top:0">趋势图示（示例）</h3>
+      <canvas id="lineChart" height="140"></canvas>
+
+      <h4 style="margin-top:18px">分析要点</h4>
+      <p>第一段：这是示例正文。你可以在这里写分析、市场点评、要点提示等。</p>
+      <p>第二段：可以继续添加内容、引用或说明。也可以粘贴更长的文本。</p>
+
+      <h4 style="margin-top:14px">详细数据表</h4>
+      <table>
+        <thead>
+          <tr><th>日期</th><th>指标</th><th>备注</th></tr>
+        </thead>
+        <tbody id="dataBody">
+          <tr><td>2025-11-10</td><td>5432</td><td>示例</td></tr>
+          <tr><td>2025-11-11</td><td>5550</td><td>示例</td></tr>
+          <tr><td>2025-11-12</td><td>5300</td><td>示例</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 侧栏：快速信息、联系方式等 -->
+    <aside class="card">
+      <h4 style="margin-top:0">快速信息</h4>
+      <p class="meta"><strong>作者：</strong>你的名字</p>
+      <p class="meta"><strong>类别：</strong>市场 / 报告</p>
+      <p class="meta"><strong>联系方式：</strong>email@example.com</p>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid #eee"/>
+
+      <h4>图表说明</h4>
+      <p class="meta">此图展示示例时间序列数据，数据仅供演示。</p>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid #eee"/>
+      <h4>下载 / 操作</h4>
+      <p style="margin:8px 0 0">
+        <button id="exportBtn" style="padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer">导出为 PNG（图表）</button>
+      </p>
+    </aside>
+  </div>
+
+  <!-- 页脚 -->
+  <footer class="card" style="text-align:center;font-size:13px;color:var(--muted)">
+    © 2025 自定义页面模板 • 本页面为示例模板，可自由修改与使用
+  </footer>
+</div>
+
+<script>
+  // ---------- 前端密码验证 ----------
+  var password = "123456"; // <-- 设置你的密码
+  var userInput = prompt("请输入访问密码：");
+  if(userInput === password){
+    document.getElementById("content-wrap").style.display = "block";
+  } else {
+    alert("密码错误，无法访问页面！");
+    document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>访问被拒绝</h2>";
+  }
+
+  // ---------- 页面数据与图表 ----------
+  const labels = ['2025-11-08','2025-11-09','2025-11-10','2025-11-11','2025-11-12','2025-11-13','2025-11-14'];
+  const dataValues = [5380,5410,5432,5550,5300,5420,5475];
+
+  document.getElementById('kpi1').innerText = '¥ ' + dataValues[dataValues.length - 1].toLocaleString();
+  document.getElementById('kpi2').innerText = ((dataValues[dataValues.length - 1] - dataValues[dataValues.length - 2]) / dataValues[dataValues.length - 2] * 100).toFixed(2) + '%';
+  document.getElementById('kpi3').innerText = '示例值';
+
+  const now = new Date();
+  const pad = n=>n<10?('0'+n):n;
+  document.getElementById('updateTime').innerText = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+  const tbody = document.getElementById('dataBody');
+  tbody.innerHTML = '';
+  for(let i=0;i<labels.length;i++){
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+labels[i]+'</td><td>'+dataValues[i]+'</td><td>示例备注</td>';
+    tbody.appendChild(tr);
+  }
+
+  const ctx = document.getElementById('lineChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '示例指标',
+        data: dataValues,
+        fill: true,
+        tension: 0.25,
+        borderWidth: 2,
+        borderColor: '#cf8a00',
+        backgroundColor: 'rgba(207,138,0,0.12)',
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,0.04)'}}}
+    }
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    const a = document.createElement('a');
+    a.href = document.getElementById('lineChart').toDataURL('image/png',1);
+    a.download = 'chart.png';
+    a.click();
+  });
+</script>
+
+</body>
+</html>
